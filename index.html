@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- <link rel="stylesheet" href="./style.css"> -->
+   <style>
+    body {
+  height: 100vh; /* Full viewport height */
+  margin: 0;  /* Remove default margin */
+  display: flex;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+}
+.container {
+  width: 500px;
+  height: 300px;
+  background-color: cadetblue;
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Center child items horizontally */
+  justify-content: center; /* Center child items vertically */
+}
+.secondScreen{
+  display: none;
+}
+.thirdScreen{
+  display: none;
+}
+.fourthScreen{
+  display: none;
+}
+.fiveScreen{
+  display: none;
+}
+   </style>
+</head>
+<body>
+  <div class="container">
+    <!-- First Interface Showing -->
+    <div class="firstScreen">
+      <h1 id="firstHeading">Hey Survivors😍</h1>
+      <input type="text" id="firstInput" placeholder="Enter Your Name">
+      <br>
+      <h2 id="errorOne"></h2>
+      <br>
+      <button id="firstButton">Submit Your Name</button>
+    </div>
+    <!-- Second Interface Showing -->
+    <div class="secondScreen">
+      <h2 id="secondHeading"></h2>
+      <input type="text" id="secondInput" placeholder="Enter Secret Number">
+      <br>
+      <h3 id="errorTwo"></h3>
+      <br>
+      <button id="secondButton">Submit Your Number</button>
+    </div>
+    <!-- Third Interface Showing -->
+    <div class="thirdScreen">
+      <h2 id="thirdHeading"></h2>
+      <input type="text" id="thirdInput" placeholder="Enter Your Name">
+      <br>
+      <h3 id="errorThree"></h3>
+      <button id="thirdButton">Submit Your Name</button>
+    </div>
+     <!-- Fouth Interface Showing -->
+    <div class="fourthScreen">
+      <h2 id="fourthHeading"></h2>
+      <input type="text" id="fourthInput" placeholder="Guess The Number">
+      <br>
+      <h3 id="errorFourth"></h3>
+      <button id="fourthButton">Submit The Number</button>
+    </div>
+    <div class="fiveScreen">
+      <h2 id="fiveHeading"></h2>
+      
+    </div>
+  </div>
+
+  <script>
+    let firstScreen    = document.querySelector('.firstScreen');
+let firstInput     = document.querySelector('#firstInput');
+let errorOne       = document.querySelector('#errorOne');
+let firstButton    = document.querySelector('#firstButton');
+
+let secondScreen   = document.querySelector('.secondScreen');
+let secondHeading  = document.querySelector('#secondHeading');
+let secondInput    = document.querySelector('#secondInput');
+let secondButton   = document.querySelector('#secondButton');
+let errorTwo       = document.querySelector('#errorTwo');
+
+let thirdScreen    = document.querySelector('.thirdScreen');
+let thirdHeading   = document.querySelector('#thirdHeading');
+let thirdButton    = document.querySelector('#thirdButton');
+let thirdInput     = document.querySelector('#thirdInput');
+let errorThree     = document.querySelector('#errorThree');
+
+let fourthScreen   = document.querySelector('.fourthScreen');
+let fourthHeading  = document.querySelector('#fourthHeading');
+let fourthInput    = document.querySelector('#fourthInput');
+let errorFourth    = document.querySelector('#errorFourth');
+let fourthButton   = document.querySelector('#fourthButton');
+
+let fiveScreen     = document.querySelector('.fiveScreen');
+let fiveHeading    = document.querySelector('#fiveHeading');
+
+let secretNumber;     // To store the number entered by first player
+let guessLimit = 5;   // Max attempts for second player
+
+// Screen 1: Get First Player Name
+firstButton.addEventListener("click", () => {
+  let firstMatch = firstInput.value;
+  if (firstMatch.match(/^[a-zA-Z]+$/)) {
+    firstScreen.style.display = "none";
+    secondScreen.style.display = "block";
+    secondHeading.innerHTML = "Hey " + firstMatch + " Welcome";
+    errorOne.innerHTML = "";
+  } else if (firstMatch === "") {
+    errorOne.innerHTML = "Please Fill Up The Form";
+  } else {
+    errorOne.innerHTML = "Please Enter Your Name (Only Letters)";
+  }
+});
+
+// Screen 2: First Player Enters Secret Number
+secondButton.addEventListener("click", () => {
+  let secondMatch = secondInput.value;
+  if (secondMatch.match(/^\d+$/)) {
+    secretNumber = secondMatch;
+    secondScreen.style.display = "none";
+    thirdScreen.style.display = "block";
+    thirdHeading.innerHTML = "Hey New Survivors";
+    errorTwo.innerHTML = "";
+  } else if (secondMatch.match(/^[a-zA-Z]+$/)) {
+    errorTwo.innerHTML = "Enter Secret Number (Only Digits)";
+  } else if (secondMatch === "") {
+    errorTwo.innerHTML = "Please Fill Up The Form";
+  } else {
+    errorTwo.innerHTML = "Please Enter a Valid Number";
+  }
+});
+
+// Screen 3: Get Second Player Name
+thirdButton.addEventListener("click", () => {
+  let thirdMatch = thirdInput.value;
+  if (thirdMatch.match(/^[a-zA-Z]+$/)) {
+    thirdScreen.style.display = "none";
+    fourthScreen.style.display = "block";
+    fourthHeading.innerHTML = "Hey " + thirdMatch + " Welcome";
+    errorThree.innerHTML = "";
+  } else if (thirdMatch === "") {
+    errorThree.innerHTML = "Halai Aga Tui Form Fill Up Kor";
+  } else {
+    errorThree.innerHTML = "Vai Tui Number Dis Nah Tor Nam Da";
+  }
+});
+
+// Screen 4: Second Player Guesses the Number
+fourthButton.addEventListener("click", () => {
+  let guess = fourthInput.value;
+
+  if (guess === "") {
+    errorFourth.innerHTML = "Vai Tui Form Fill Up";
+    return;
+  }
+
+  if (isNaN(guess)) {
+    errorFourth.innerHTML = "Vai Tui Number Da";
+    return;
+  }
+
+  if (guess === secretNumber) {
+    fourthScreen.style.display = "none";
+    fiveScreen.style.display = "block";
+    fiveHeading.innerHTML = "🎉 Vai Tumi Biya Koro 🎉";
+  } else {
+    guessLimit--;
+    if (guessLimit > 0) {
+      errorFourth.innerHTML = `❌ Wrong Guess! ${guessLimit} tries left.`;
+    } else {
+      fourthScreen.style.display = "none";
+      fiveScreen.style.display = "block";
+      fiveHeading.innerHTML = `💔 Game Over! You failed to guess. Secret was: ${secretNumber}`;
+    }
+  }
+});
+
+  </script>
+  <!-- <script src="./script.js"></script> -->
+</body>
+</html>
