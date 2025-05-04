@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Number Guessing Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #8e9eab, #eef2f3);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .main {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+    input {
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+    .success {
+      color: green;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="main">
+  <!-- Audio Elements -->
+  <audio id="bg-music" src="../mp3/PASSO BEM SOLTO.mp3" loop></audio>
+  <audio id="wrong-sound" src="../mp3/Wrong-answer.mp3"></audio>
+  <audio id="win-sound" src="../mp3/Winning.mp3"></audio>
+
+  <!-- First UI -->
+  <div class="firstUi">
+    <h2>Welcome to Number Guessing Game</h2>
+    <input type="text" class="firstInput" placeholder="Enter Player 1 Name">
+    <div class="error firstUiError"></div>
+    <button class="firstUiBtn">Start</button>
+  </div>
+
+  <!-- Second UI -->
+  <div class="secondUi hidden">
+    <h2 class="secondUiHeading"></h2>
+    <input type="number" class="secondInput" placeholder="Enter a number between 1-10">
+    <div class="error secondUiError"></div>
+    <button class="secondUiBtn">Submit Number</button>
+  </div>
+
+  <!-- Third UI -->
+  <div class="thirdUi hidden">
+    <h2 class="thirdUiHeading">Player 2: Guess the number (5 attempts)</h2>
+    <input type="number" class="thirdInput" placeholder="Your guess (1-10)">
+    <div class="error thirdUiError"></div>
+    <button class="thirdUiBtn">Guess</button>
+    <h3 class="resultMessage"></h3>
+    <h4 class="attemptsLeft"></h4>
+  </div>
+</div>
+
+<script>
+  const firstUi = document.querySelector(".firstUi");
+  const firstInput = document.querySelector(".firstInput");
+  const firstUiBtn = document.querySelector(".firstUiBtn");
+  const firstUiError = document.querySelector(".firstUiError");
+
+  const secondUi = document.querySelector(".secondUi");
+  const secondUiHeading = document.querySelector(".secondUiHeading");
+  const secondInput = document.querySelector(".secondInput");
+  const secondUiBtn = document.querySelector(".secondUiBtn");
+  const secondUiError = document.querySelector(".secondUiError");
+
+  const thirdUi = document.querySelector(".thirdUi");
+  const thirdInput = document.querySelector(".thirdInput");
+  const thirdUiBtn = document.querySelector(".thirdUiBtn");
+  const thirdUiError = document.querySelector(".thirdUiError");
+  const resultMessage = document.querySelector(".resultMessage");
+  const attemptsLeft = document.querySelector(".attemptsLeft");
+
+  const bgMusic = document.getElementById("bg-music");
+  const wrongSound = document.getElementById("wrong-sound");
+  const winSound = document.getElementById("win-sound");
+
+  let secretNumber = null;
+  let tries = 5;
+  let wrongVolume = 0.2;
+
+  // Step 1: Get Player One Name
+  firstUiBtn.addEventListener("click", () => {
+    const name = firstInput.value.trim();
+    if (!name.match(/^[a-zA-Z ]+$/)) {
+      firstUiError.textContent = "Please enter a valid name (letters only).";
+    } else {
+      firstUiError.textContent = "";
+      firstUi.classList.add("hidden");
+      secondUi.classList.remove("hidden");
+      secondUiHeading.textContent = `Hello ${name}, enter a secret number (1-10)`;
+      bgMusic.volume = 0.5;
+      bgMusic.play();
+    }
+  });
+
+  // Step 2: Player One sets the number
+  secondUiBtn.addEventListener("click", () => {
+    const number = Number(secondInput.value);
+    if (!number || number < 1 || number > 10) {
+      secondUiError.textContent = "Please enter a valid number between 1 and 10.";
+    } else {
+      secondUiError.textContent = "";
+      secretNumber = number;
+      secondUi.classList.add("hidden");
+      thirdUi.classList.remove("hidden");
+      bgMusic.volume = 0.2; // lower background volume during guessing
+      updateAttemptsLeft();
+    }
+  });
+
+  // Step 3: Player Two guesses
+  thirdUiBtn.addEventListener("click", () => {
+    const guess = Number(thirdInput.value);
+    if (!guess || guess < 1 || guess > 10) {
+      thirdUiError.textContent = "Enter a valid guess between 1 and 10.";
+      return;
+    }
+
+    thirdUiError.textContent = "";
+    tries--;
+
+    if (guess === secretNumber) {
+      resultMessage.textContent = "🎉 Correct! You guessed it!";
+      resultMessage.classList.add("success");
+      thirdInput.disabled = true;
+      thirdUiBtn.disabled = true;
+
+      // Pause bg music and play win sound
+      bgMusic.pause();
+      winSound.play();
+
+      setTimeout(resetGame, 4000);
+    } else {
+      // Play wrong sound with increasing volume
+      wrongSound.volume = wrongVolume;
+      wrongSound.play();
+      wrongVolume = Math.min(wrongVolume + 0.2, 1.0); // increment until max
+
+      if (tries === 0) {
+        resultMessage.textContent = `❌ Game Over! The correct number was ${secretNumber}.`;
+        resultMessage.classList.remove("success");
+        resultMessage.style.color = "red";
+        thirdInput.disabled = true;
+        thirdUiBtn.disabled = true;
+
+        setTimeout(resetGame, 4000);
+      } else {
+        resultMessage.textContent = guess > secretNumber ? "Too high! Try again." : "Too low! Try again.";
+      }
+    }
+
+    updateAttemptsLeft();
+  });
+
+  function updateAttemptsLeft() {
+    attemptsLeft.textContent = `Attempts left: ${tries}`;
+  }
+
+  function resetGame() {
+    secretNumber = null;
+    tries = 5;
+    wrongVolume = 0.2;
+
+    firstInput.value = '';
+    secondInput.value = '';
+    thirdInput.value = '';
+    resultMessage.textContent = '';
+    resultMessage.style.color = "";
+    resultMessage.classList.remove("success");
+    thirdUiError.textContent = '';
+    attemptsLeft.textContent = '';
+    thirdInput.disabled = false;
+    thirdUiBtn.disabled = false;
+
+    secondUi.classList.add("hidden");
+    thirdUi.classList.add("hidden");
+    firstUi.classList.remove("hidden");
+
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
+</script>
+
+</body>
+</html>
